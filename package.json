@@ -1,0 +1,15 @@
+{
+  "name": "rawscript",
+  "version": "1.0.0",
+  "description": "rawscript api endpoint",
+  "main": "api/index.js",
+  "dependencies": {
+    "express": "^4.17.2"
+  },
+  "scripts": {
+    "start": "node api/index.js"
+  },
+  "engines": {
+    "node": ">=12.0.0"
+  }
+}
