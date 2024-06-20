@@ -6,6 +6,7 @@ const app = express();
 const rawScriptTable = {
     'test1': 'https://raw.githubusercontent.com/StevenK-293/rawscript/main/raw/scripts/main_1.lua',
     'test_2': 'https://raw.githubusercontent.com/StevenK-293/rawscript/main/raw/scripts/main_2.lua',
+    'StrucidV2': 'https://raw.githubusercontent.com/StevenK-293/AdvanceTech/main/StrucidV2.lua',
 };
 
 const welcomeMessage = `
