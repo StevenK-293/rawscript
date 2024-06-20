@@ -23,6 +23,8 @@ Available Scripts:
 - test_2: Retrieves main_2.lua script from the raw/scripts folder/dict.
 `;
 
+app.use(express.json({ limit: '1mb' }));
+
 app.get('/', (req, res) => {
     res.send('Welcome to the home page.');
 });
@@ -43,7 +45,7 @@ app.get('/api/raw/:script_name', async (req, res) => {
     const fileUrl = rawScriptTable[scriptName];
 
     try {
-        const response = await axios.get(fileUrl);
+        const response = await axios.get(fileUrl, { responseType: 'text' });
         res.set('Content-Type', 'text/plain');
         res.send(response.data);
     } catch (error) {
