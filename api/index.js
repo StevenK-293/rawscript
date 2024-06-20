@@ -2,7 +2,6 @@ const express = require('express');
 const axios = require('axios');
 
 const app = express();
-const port = 3000;
 
 const rawScriptTable = {
     'test1': 'https://raw.githubusercontent.com/StevenK-293/rawscript/main/raw/scripts/main_1.lua',
@@ -20,7 +19,7 @@ app.get('/api', (req, res) => {
     - /api/raw/<script_name>: Fetches the content of the script.
     
     Available Scripts:
-    - test: Retrieves main_1.lua script from GitHub.
+    - test1: Retrieves main_1.lua script from GitHub.
     `;
     res.set('Content-Type', 'text/plain');
     res.send(instructions);
@@ -45,6 +44,4 @@ app.get('/api/raw/:script_name', async (req, res) => {
     }
 });
 
-app.listen(port, () => {
-    console.log(`App listening at http://localhost:${port}`);
-});
+module.exports = app;
