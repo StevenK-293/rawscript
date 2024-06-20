@@ -4,8 +4,25 @@ import requests
 app = Flask(__name__)
 
 raw_script_table = {
-    'test1': 'https://raw.githubusercontent.com/StevenK-293/rawscript/main/raw/scripts/main_1.lua',
+    'test': 'https://raw.githubusercontent.com/StevenK-293/rawscript/main/raw/scripts/main_1.lua',
 }
+
+@app.route('/', methods=['GET'])
+def home():
+    return "Welcome to the home page."
+
+@app.route('/api', methods=['GET'])
+def api_info():
+    instructions = """
+    Welcome to the API endpoint.
+    
+    Usage:
+    - /api/raw/<script_name>: Fetches the content of the script.
+    
+    Available Scripts:
+    - test: Retrieves main_1.lua script from GitHub.
+    """
+    return Response(instructions, mimetype='text/plain')
 
 @app.route('/api/raw/<script_name>', methods=['GET'])
 def get_code(script_name):
@@ -19,9 +36,11 @@ def get_code(script_name):
         if response.status_code == 200:
             code_content = response.text
             return Response(code_content, mimetype='text/plain')
+        elif response.status_code == 404:
+            return "Script not found", 404
         else:
-            return "failed to fetch script", response.status_code
-    except Exception as e:
+            return "Failed to fetch script", response.status_code
+    except requests.exceptions.RequestException as e:
         return str(e), 500
 
 if __name__ == '__main__':
