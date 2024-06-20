@@ -10,11 +10,11 @@ jobs:
     steps:
       - name: Fetch latest script
         run: |
-          curl -o main_1.lua https://raw.githubusercontent.com/YourUsername/YourRepo/main/raw/scripts/main_1.lua
+          curl -o main_1.lua https://raw.githubusercontent.com/StevenK-293/rawscript/main/raw/scripts/main_1.lua
       - name: Commit and push changes
         run: |
-          git config --global user.email "your-email@example.com"
-          git config --global user.name "Your Name"
+          git config --global user.email "sksor4@example.com"
+          git config --global user.name "Steven"
           git add main_1.lua
           git commit -m "Update main_1.lua"
           git push
