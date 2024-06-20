@@ -3,44 +3,52 @@ const axios = require('axios');
 
 const app = express();
 
-const scriptRepoUrl = 'https://raw.githubusercontent.com/StevenK-293/rawscript/main/raw/scripts/';
+const rawScriptTable = {
+    'test1': 'https://raw.githubusercontent.com/StevenK-293/rawscript/main/raw/scripts/main_1.lua',
+    'test_2': 'https://raw.githubusercontent.com/StevenK-293/rawscript/main/raw/scripts/main_2.lua',
+};
 
-async function fetchScript(scriptName) {
-    const fileUrl = `${scriptRepoUrl}${scriptName}.lua`;
-    try {
-        const response = await axios.get(fileUrl);
-        return response.data;
-    } catch (error) {
-        console.error('Failed to fetch script:', error);
-        throw error;
-    }
-}
+const welcomeMessage = `
+***************************************
+*                                     *
+*   Welcome to the API endpoint        *
+*                                     *
+***************************************
+
+Usage:
+- /api/raw/<script_name>: Fetches the script content.
+
+Available Scripts:
+- test1: Retrieves main_1.lua script from GitHub.
+`;
+
+app.get('/', (req, res) => {
+    res.send('Welcome to the home page.');
+});
+
+app.get('/api', (req, res) => {
+    res.set('Content-Type', 'text/plain');
+    res.send(welcomeMessage);
+});
 
 app.get('/api/raw/:script_name', async (req, res) => {
     const scriptName = req.params.script_name;
 
-    try {
-        const scriptContent = await fetchScript(scriptName);
-        res.set('Content-Type', 'text/plain');
-        res.send(scriptContent);
-    } catch (error) {
-        console.error('Script not found or failed to fetch:', error);
-        res.status(404).send('Script not found or failed to fetch');
+    if (!rawScriptTable.hasOwnProperty(scriptName)) {
+        res.status(404).send('Script not found');
+        return;
     }
-});
 
-app.get('/api', (req, res) => {
-    const instructions = `
-    Welcome to the API endpoint.
+    const fileUrl = rawScriptTable[scriptName];
 
-    Usage:
-    - /api/raw/<script_name>: Fetches the content of the script.
-
-    Available Scripts:
-    - test1: Retrieves main_1.lua script from GitHub.
-    `;
-    res.set('Content-Type', 'text/plain');
-    res.send(instructions);
+    try {
+        const response = await axios.get(fileUrl);
+        res.set('Content-Type', 'text/plain');
+        res.send(response.data);
+    } catch (error) {
+        console.error('Failed to fetch script:', error);
+        res.status(error.response ? error.response.status : 500).send('Failed to fetch script');
+    }
 });
 
 app.get('*', (req, res) => {
