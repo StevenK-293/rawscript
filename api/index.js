@@ -20,6 +20,7 @@ Usage:
 
 Available Scripts:
 - test1: Retrieves main_1.lua script from GitHub.
+- test_2: Retrieves main_2.lua script from the raw/scripts folder/dict.
 `;
 
 app.get('/', (req, res) => {
