@@ -9,7 +9,7 @@ const rawScriptTable = {
     'StrucidV2': 'https://raw.githubusercontent.com/StevenK-293/AdvanceTech/main/StrucidV2.lua',
     'esp_1': 'https://raw.githubusercontent.com/StevenK-293/Loadstrings/main/esp.lua', // NOT made by AdvanceFalling Team
     'Arrow': 'https://raw.githubusercontent.com/StevenK-293/ESPs/main/Arrows.lua', // NOT made by AdvanceFalling Team
-    'REALISTIC_HOOD': 'https://pastebin.com/raw/nj9tZkSs',
+    'REALISTICHOOD': 'https://pastebin.com/raw/nj9tZkSs',
 };
 
 const welcomeMessage = `
