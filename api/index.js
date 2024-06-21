@@ -9,7 +9,7 @@ const rawScriptTable = {
     'StrucidV2': 'https://raw.githubusercontent.com/StevenK-293/AdvanceTech/main/StrucidV2.lua',
     'esp_1': 'https://raw.githubusercontent.com/StevenK-293/Loadstrings/main/esp.lua', // NOT made by AdvanceFalling Team
     'Arrow': 'https://raw.githubusercontent.com/StevenK-293/ESPs/main/Arrows.lua', // NOT made by AdvanceFalling Team
-    'REALISTICHOOD': 'https://pastebin.com/raw/nj9tZkSs',
+    'REALISTIC_HOOD': 'https://pastebin.com/raw/nj9tZkSs',
 };
 
 const welcomeMessage = `
@@ -25,6 +25,10 @@ Usage:
 Available Scripts:
 - test1: Retrieves main_1.lua script from GitHub.
 - test_2: Retrieves main_2.lua script from the raw/scripts folder/dict.
+- StrucidV2: Retrieves StrucidV2.lua script from GitHub.
+- esp_1: Retrieves esp.lua script from GitHub.
+- Arrow: Retrieves Arrows.lua script from GitHub.
+- REALISTIC_HOOD: Retrieves script from Pastebin.
 `;
 
 app.use(express.json({ limit: '1mb' }));
@@ -68,3 +72,8 @@ app.use(function (err, req, res, next) {
 });
 
 module.exports = app;
+
+const PORT = process.env.PORT || 3000;
+app.listen(PORT, () => {
+    console.log(`Server is running on port ${PORT}`);
+});
