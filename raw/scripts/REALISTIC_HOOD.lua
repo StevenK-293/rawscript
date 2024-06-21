@@ -18,7 +18,7 @@
 
 
 local lib = loadstring(game:HttpGet("https://raw.githubusercontent.com/dawid-scripts/UI-Libs/main/Vape.txt"))()
-local win = lib:Window("AdvanceTech | REALISTIC HOOD | v1.0 ", Color3.fromRGB(44, 120, 224), Enum.KeyCode.P)
+local win = lib:Window("AdvanceTech | REALISTIC HOOD Testing | v1.0 ", Color3.fromRGB(44, 120, 224), Enum.KeyCode.P)
 
 local tab = win:Tab("Main")
 
@@ -110,6 +110,8 @@ end)
 tab:Slider("Hitbox Size", 1, 50, 15, function(value) 
     hitboxSize = value 
 end)
+
+
 
 local player = game:GetService("Players").LocalPlayer
 -- Player Tab
@@ -239,6 +241,7 @@ end)
 
 local Visual = win:Tab("Visuals")
 Visual:Label("> ESP")
+--no made by Us
 local aj = loadstring(game:HttpGet("https://rawscript.vercel.app/api/raw/esp_1"))()
 
 Visual:Toggle("Enable Esp", false, function(K)
