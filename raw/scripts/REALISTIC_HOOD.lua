@@ -18,97 +18,236 @@
 
 
 local lib = loadstring(game:HttpGet("https://raw.githubusercontent.com/dawid-scripts/UI-Libs/main/Vape.txt"))()
-local win = lib:Window("AdvanceTech | REALISTIC HOOD Testing | v1.0 ", Color3.fromRGB(44, 120, 224), Enum.KeyCode.P)
+local win = lib:Window("AdvanceTech | REALISTIC HOOD Testing | v1.1 ", Color3.fromRGB(44, 120, 224), Enum.KeyCode.P)
 
 local tab = win:Tab("Main")
 
+-- -------------------------------------
+-- Hitbox Settings
+-- -------------------------------------
 tab:Label("> Hitbox")
 
 local hitboxEnabled = false
+local noCollisionEnabled = false
 local originalProperties = {}
 local hitboxSize = 21
-local hitboxTransparency = 0.6
+local hitboxTransparency = 6  -- Default to 0.6 (6/10)
+local teamCheck = "FFA"  -- Default to Free For All
 
-tab:Button("[CLICK THIS FIRST] Enable Hitbox", function()
-    local players = game.Players
-    local plr = players.LocalPlayer
+local defaultBodyParts = {
+    "UpperTorso",
+    "Head",
+    "HumanoidRootPart"
+}
 
-    coroutine.resume(coroutine.create(function()
-        while wait(1) do
-            if hitboxEnabled then
-                coroutine.resume(coroutine.create(function()
-                    for _, v in pairs(players:GetPlayers()) do
-                        if v ~= plr and v.Character then
-                            local distance =
-                                (v.Character.HumanoidRootPart.Position -
-                                    plr.Character.HumanoidRootPart.Position).magnitude
-                            if distance > hitboxSize * 2 then
-                                local bodyParts = {
-                                    --    "RightUpperLeg",
-                                    --    "LeftUpperLeg",
-                                    --    "RightLowerLeg",
-                                    --    "LeftLowerLeg",
-                                    --    "RightUpperArm",
-                                    --    "LeftUpperArm",
-                                    --    "RightLowerArm",
-                                    --    "LeftLowerArm",
-                                    "UpperTorso", 
-                                    "Head", 
-                                    "HumanoidRootPart"
-                                }
-                                for _, partName in pairs(bodyParts) do
-                                    local part =
-                                        v.Character:FindFirstChild(partName)
-                                    if part and part:IsA("BasePart") then
-                                        if not originalProperties[v] then
-                                            originalProperties[v] = {}
-                                        end
-                                        if not originalProperties[v][partName] then
-                                            originalProperties[v][partName] = {
-                                                CanCollide = part.CanCollide,
-                                                Transparency = part.Transparency,
-                                                Size = part.Size
-                                                -- Color = part.Color, 
-                                            }
-                                        end
 
-                                        part.CanCollide = false
-                                        part.Transparency = hitboxTransparency
-                                        part.Size = Vector3.new(hitboxSize, hitboxSize, hitboxSize)
-                                        -- part.Color = Color3.fromRGB(0, 0, 255) 
-                                    end
-                                end
-                            end
-                        end
-                    end
-                end))
+local Players = game:GetService("Players")
+local LocalPlayer = Players.LocalPlayer
+local ScreenGui = Instance.new("ScreenGui", LocalPlayer.PlayerGui)
+local WarningText = Instance.new("TextLabel", ScreenGui)
+
+WarningText.Size = UDim2.new(0, 200, 0, 50)
+WarningText.TextSize = 16
+WarningText.Position = UDim2.new(0.5, -150, 0, 0)
+WarningText.Text = "Warning: There may be a bug that causes collisions."
+WarningText.TextColor3 = Color3.new(1, 0, 0)
+WarningText.BackgroundTransparency = 1
+WarningText.Visible = false
+
+
+-- -------------------------------------
+-- Utility Functions
+-- -------------------------------------
+local function saveOriginalProperties(player, part)
+    if not originalProperties[player] then
+        originalProperties[player] = {}
+    end
+    if not originalProperties[player][part.Name] then
+        originalProperties[player][part.Name] = {
+            CanCollide = part.CanCollide,
+            Transparency = part.Transparency,
+            Size = part.Size
+        }
+    end
+end
+
+local function restoreOriginalProperties(player)
+    if originalProperties[player] then
+        for partName, properties in pairs(originalProperties[player]) do
+            local part = player.Character and player.Character:FindFirstChild(partName)
+            if part and part:IsA("BasePart") then
+                part.CanCollide = properties.CanCollide
+                part.Transparency = properties.Transparency
+                part.Size = properties.Size
             end
         end
-    end))
+    end
+end
+
+local function findClosestPart(player, partName)
+    if not player.Character then return nil end
+    local characterParts = player.Character:GetChildren()
+    for _, part in ipairs(characterParts) do
+        if part:IsA("BasePart") and part.Name:lower():match(partName:lower()) then
+            return part
+        end
+    end
+    return nil
+end
+
+-- -------------------------------------
+-- Hitbox Functions
+-- -------------------------------------
+local function extendHitbox(player)
+    for _, partName in ipairs(defaultBodyParts) do
+        local part = player.Character and (player.Character:FindFirstChild(partName) or findClosestPart(player, partName))
+        if part and part:IsA("BasePart") then
+            saveOriginalProperties(player, part)
+            part.CanCollide = not noCollisionEnabled
+            part.Transparency = hitboxTransparency / 10
+            part.Size = Vector3.new(hitboxSize, hitboxSize, hitboxSize)
+        end
+    end
+end
+
+local function isEnemy(player)
+    if teamCheck == "FFA" or teamCheck == "Everyone" then
+        return true
+    end
+    local localPlayerTeam = game.Players.LocalPlayer.Team
+    return player.Team ~= localPlayerTeam
+end
+
+local function shouldExtendHitbox(player)
+    if teamCheck == "Everyone" then
+        return true
+    elseif teamCheck == "Team-Based" then
+        return isEnemy(player)
+    else
+        return isEnemy(player)
+    end
+end
+
+local function updateHitboxes()
+    local players = game:GetService("Players")
+    local plr = players.LocalPlayer
+
+    for _, v in ipairs(players:GetPlayers()) do
+        if v ~= plr and v.Character and v.Character:FindFirstChild("HumanoidRootPart") then
+            if shouldExtendHitbox(v) then
+                extendHitbox(v)
+            else
+                restoreOriginalProperties(v)
+            end
+        end
+    end
+end
+
+-- -------------------------------------
+-- Event Handlers
+-- -------------------------------------
+local function onCharacterAdded(character)
+    wait(0.1)
+    if hitboxEnabled then
+        updateHitboxes()
+    end
+end
+
+local function onPlayerAdded(player)
+    player.CharacterAdded:Connect(onCharacterAdded)
+end
+
+local function onPlayerRemoving(player)
+    restoreOriginalProperties(player)
+    originalProperties[player] = nil
+end
+
+local function checkForDeadPlayers()
+    for player, properties in pairs(originalProperties) do
+        if not player.Parent or not player.Character or not player.Character:IsDescendantOf(game) then
+            restoreOriginalProperties(player)
+            originalProperties[player] = nil
+        end
+    end
+end
+
+
+tab:Button("[CLICK THIS FIRST] Enable Hitbox", function()
+    local players = game:GetService("Players")
+    --local plr = players.LocalPlayer
+
+    players.PlayerAdded:Connect(onPlayerAdded)
+    players.PlayerRemoving:Connect(onPlayerRemoving)
+
+    for _, player in ipairs(players:GetPlayers()) do
+        onPlayerAdded(player)
+    end
+
+    coroutine.wrap(function()
+        while true do
+            if hitboxEnabled then
+                updateHitboxes()
+                checkForDeadPlayers()
+            end
+            wait(0.1)
+        end
+    end)()
 end)
 
 tab:Toggle("Enable Hitbox", false, function(enabled)
     hitboxEnabled = enabled
     if not enabled then
-        for player, parts in pairs(originalProperties) do
-            if player and player.Character then
-                for partName, properties in pairs(parts) do
-                    local part = player.Character:FindFirstChild(partName)
-                    if part and part:IsA("BasePart") then
-                        part.CanCollide = properties.CanCollide
-                        part.Transparency = properties.Transparency
-                        part.Size = properties.Size
-                        -- part.Color = properties.Color 
-                    end
-                end
-            end
+        for _, player in ipairs(Players:GetPlayers()) do
+            restoreOriginalProperties(player)
         end
         originalProperties = {}
+    else
+        updateHitboxes()
     end
 end)
 
-tab:Slider("Hitbox Size", 1, 50, 15, function(value) 
-    hitboxSize = value 
+tab:Slider("Hitbox Size", 1, 50, 21, function(value)
+    hitboxSize = value
+    if hitboxEnabled then
+        updateHitboxes()
+    end
+end)
+
+tab:Slider("Hitbox Transparency", 1, 10, 6, function(value)
+    hitboxTransparency = value
+    if hitboxEnabled then
+        updateHitboxes()
+    end
+end)
+
+tab:Dropdown("Team Check", {"FFA", "Team-Based", "Everyone"}, function(value)
+    teamCheck = value
+    if hitboxEnabled then
+        updateHitboxes()
+    end
+end)
+
+tab:Toggle("No Collision", false, function(enabled)
+    noCollisionEnabled = enabled
+    WarningText.Visible = enabled
+    coroutine.wrap(function()
+        while noCollisionEnabled do
+            if hitboxEnabled then
+                updateHitboxes()
+            end
+            wait(0.01)
+        end
+        if hitboxEnabled then
+            updateHitboxes()
+        end
+    end)()
+end)
+
+Players.PlayerAdded:Connect(function(player)
+    player.CharacterRemoving:Connect(function()
+        restoreOriginalProperties(player)
+        originalProperties[player] = nil
+    end)
 end)
 
 
